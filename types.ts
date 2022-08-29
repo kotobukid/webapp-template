@@ -1,5 +1,7 @@
-type Type1 = {
-    name: string
+type User = {
+    id: number,
+    name: string,
+    age: number
 }
 
-export type {Type1}
+export type {User}
