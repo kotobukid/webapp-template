@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "DEBUG=t1:* node ./bin/www.js",
-    "tsc": "tsc",
-    "watch": "tsc --watch"
+    "tsc": "tsc --project tsconfig_express.json",
+    "watch": "tsc --watch --project tsconfig_express.json"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
