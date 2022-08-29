@@ -7,8 +7,8 @@
   "private": true,
   "scripts": {
     "start": "DEBUG=t1:* node ./bin/www.js",
-    "tsc": "tsc --project tsconfig_express.json",
-    "watch": "tsc --watch --project tsconfig_express.json",
+    "tsc": "tsc --project tsconfig.express.json",
+    "watch": "tsc --watch --project tsconfig.express.json",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview"
