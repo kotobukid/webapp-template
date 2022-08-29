@@ -1,33 +1,65 @@
 #!/usr/bin/env node
 
+import {Socket} from "socket.io";
+
 /**
  * Module dependencies.
  */
 
 import app from '../app';
 import debug from 'debug'
-import {Server} from "http";
-import {AddressInfo} from "net";
 
 const _debug = debug('t1:server');
-const http = require('http');
+import http from 'http';
 
 /**
  * Get port from environment and store in Express.
  */
-// @ts-ignore
-const port: string | number = normalizePort(process.env.PORT || '3000');
+
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-const server: Server = http.createServer(app);
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
+const socketOptions = {
+    cors: {
+        // origin: function (origin: any, fn: any) {
+        //   // const isTarget = origin !== undefined && origin.match(/^https?:\/\/www\.test\.net/) !== null;
+        //   // return isTarget ? fn(null, origin) : fn('error invalid domain');
+        //     return 'http://localhost:5173';
+        // },
+        origin: 'http://localhost:5173',
+        credentials: true
+    }
+};
+
+const io = require('socket.io')(server, socketOptions)
+
+io.of('/ws').on('connection', (socket: Socket) => {
+    console.log('connected');
+    socket.emit('hello', 'world');
+
+    socket.on('howdy', (arg: string) => {
+        console.log(arg);
+    })
+
+    socket.on('request new user', (name: string) => {
+        const age = Math.floor(Math.random() * 5) + 18
+        console.log(name)
+
+        io.of('/ws').emit('new user', {name, age});    // 全員に
+
+        // socket.broadcast.emit('new user', name) // 本人以外に
+        // socket.emit('new user', name)   // 本人に
+    })
+})
 
 server.listen(port);
 server.on('error', onError);
@@ -56,12 +88,12 @@ function normalizePort(val: string) {
 /**
  * Event listener for HTTP server "error" event.
  */
-type Error = {
-    syscall: string,
-    code: string
+
+type Error1 = {
+    syscall: string, code: string
 }
 
-function onError(error: Error) {
+function onError(error: Error1) {
     if (error.syscall !== 'listen') {
         throw error;
     }
@@ -90,7 +122,7 @@ function onError(error: Error) {
  */
 
 function onListening() {
-    const addr: string | AddressInfo | null = server.address();
+    const addr: string | { port: string | number } | null = server.address();
     const bind = typeof addr === 'string'
         ? 'pipe ' + addr
         // @ts-ignore

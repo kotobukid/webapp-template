@@ -1,29 +1,54 @@
 #!/usr/bin/env node
 "use strict";
-/**
- * Module dependencies.
- */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Module dependencies.
+ */
 const app_1 = __importDefault(require("../app"));
 const debug_1 = __importDefault(require("debug"));
 const _debug = (0, debug_1.default)('t1:server');
-const http = require('http');
+const http_1 = __importDefault(require("http"));
 /**
  * Get port from environment and store in Express.
  */
-// @ts-ignore
 const port = normalizePort(process.env.PORT || '3000');
 app_1.default.set('port', port);
 /**
  * Create HTTP server.
  */
-const server = http.createServer(app_1.default);
+const server = http_1.default.createServer(app_1.default);
 /**
  * Listen on provided port, on all network interfaces.
  */
+const socketOptions = {
+    cors: {
+        // origin: function (origin: any, fn: any) {
+        //   // const isTarget = origin !== undefined && origin.match(/^https?:\/\/www\.test\.net/) !== null;
+        //   // return isTarget ? fn(null, origin) : fn('error invalid domain');
+        //     return 'http://localhost:5173';
+        // },
+        origin: 'http://localhost:5173',
+        credentials: true
+    }
+};
+const io = require('socket.io')(server, socketOptions);
+io.of('/ws').on('connection', (socket) => {
+    console.log('connected');
+    socket.emit('hello', 'world');
+    socket.on('howdy', (arg) => {
+        console.log(arg);
+    });
+    socket.on('request new user', (name) => {
+        const age = Math.floor(Math.random() * 5) + 18;
+        console.log(name);
+        io.of('/ws').emit('new user', { name, age }); // 全員に
+        // socket.broadcast.emit('new user', name) // 本人以外に
+        // socket.emit('new user', name)   // 本人に
+    });
+});
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
